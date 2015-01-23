@@ -1,4 +1,5 @@
 var geolib = require("geolib");
+var fs = require('fs');
 
 var testPoly = {
         "type": "LineString",
@@ -33,6 +34,7 @@ var testPoly = {
           ]
         ]
       };
+
 var testPoint = {
         "type": "Point",
         "coordinates": [
@@ -48,6 +50,7 @@ var pointFalse = {
           57.61010702068388
         ]
       };
+
 var pointToStupidFormat = function(point){
 	return {latitude: point.coordinates[1], longitude: point.coordinates[0]};
 }
@@ -85,18 +88,58 @@ var getBoundingBox = function(polygon){
 	return {"N": N, "S": S, "E": E, "W": W};
 }
 
-var genPointCloud = function(polygon, granularity){
-	var polygon = polygonInStupidFormat(polygon);
-	var boundingBox = getBoundingBox(polygon);
-	var latPointer = boundingBox.N;
-	var lonPointer = boundingBox.W;
-	var pointCloud = [];
-	while (latPointer >= boundingBox.S){
-		while(lonPointer < boundingBox.E){
-			if(isPointInside({latitude: latPointer, longitude: lonPointer}, polygon)){
-
-			}
-		}
+var backToSaneFormat = function(pointCloud){
+	var geoJSON = {
+	  "type": "FeatureCollection",
+	  "features": []
+	};
+	for (var i = 0; i < pointCloud.length; i++){
+		var geoPoint = {
+	      "type": "Feature",
+	      "properties": {},
+	      "geometry": {
+	        "type": "Point",
+	        "coordinates": [
+	          pointCloud[i].longitude,
+	          pointCloud[i].latitude
+	        ]
+	      }
+	    };
+	    geoJSON.features.push(geoPoint);
 	}
+	return geoJSON;
 }
-pointInPolygon(pointFalse, testPoly);
+
+var saveToFile = function(geojson, _path){
+	var path = _path || "out/polygon.json";
+	fs.writeFile("out/polygon.json", JSON.stringify(geojson), function(err) {
+	    if(err) {
+	        console.log(err);
+	    } else {
+	        console.log("File saved at " + path);
+	    }
+	}); 
+}
+
+var genPointCloud = function(polygon, granularity){
+	var polygon = polygonToStupidFormat(polygon);
+	var boundingBox = getBoundingBox(polygon);
+	var pointCloud = [];
+	var latIncrement = (Math.abs(boundingBox.S - boundingBox.N)) / granularity;
+	var lonIncrement = (Math.abs(boundingBox.W - boundingBox.E)) / granularity;
+	var latPointer = boundingBox.N;
+	while (latPointer >= boundingBox.S){
+		var lonPointer = boundingBox.W;
+		while(lonPointer < boundingBox.E){
+			var pointInStupidFormat = {latitude: latPointer, longitude: lonPointer};
+			if(pointInPolygon(pointInStupidFormat, polygon)){
+				pointCloud.push(pointInStupidFormat);
+			}
+			lonPointer += lonIncrement;
+		}
+		latPointer -= latIncrement;
+	}
+	saveToFile(backToSaneFormat(pointCloud));
+}
+
+genPointCloud(testPoly, 10);
