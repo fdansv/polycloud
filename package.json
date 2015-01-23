@@ -1,0 +1,22 @@
+{
+  "name": "polycloud",
+  "version": "1.0.0",
+  "description": "Turns polygons into points",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fdansv/polycloud"
+  },
+  "author": "Francisco Dans",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/fdansv/polycloud/issues"
+  },
+  "homepage": "https://github.com/fdansv/polycloud",
+  "dependencies": {
+    "geolib": "^2.0.14"
+  }
+}
