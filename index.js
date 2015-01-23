@@ -64,9 +64,6 @@ var polygonToStupidFormat = function(polygon){
 }
 
 var pointInPolygon = function(point, polygon){
-	var point = pointToStupidFormat(point);
-	var polygon = polygonToStupidFormat(polygon);
-	console.log(getBoundingBox(polygon));
 	return geolib.isPointInside(point, polygon);
 }
 
