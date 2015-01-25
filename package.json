@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/fdansv/polycloud",
   "dependencies": {
+    "commander": "^2.6.0",
     "geolib": "^2.0.14"
   }
 }
